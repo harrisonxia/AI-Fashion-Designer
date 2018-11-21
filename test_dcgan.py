@@ -15,6 +15,7 @@ parser.add_argument('--ndf', type=int, default=64, help='number of discrim filte
 parser.add_argument('--n_extra_layers', type=int, default=0, help='Number of extra layers on gen and disc')
 parser.add_argument('--which_epoch', default='24', type=str, help='0,1,2,3,4...')
 parser.add_argument('--batchsize', default=64, type=int, help='batchsize')
+parser.add_argument('--imageSize', type=int, default=64, help='the height / width of the input image to network')
 parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0,1,2  0,2')
 opt = parser.parse_args()
 print(opt)
