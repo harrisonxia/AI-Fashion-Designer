@@ -1,8 +1,6 @@
 import os
-import sys
 import random
-import math
-import numpy as np
+import time
 import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
@@ -23,12 +21,11 @@ ROOT_DIR = os.getcwd()
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 
 # Path to trained weights file
-# Download this file and place in the root of your
-# project (See README file for details)
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.pth")
 
 # Directory of images to run detection on
 IMAGE_DIR = os.path.join(ROOT_DIR, "images")
+
 
 class InferenceConfig(coco.CocoConfig):
     # Set batch size to 1 since we'll be running inference on
@@ -37,10 +34,11 @@ class InferenceConfig(coco.CocoConfig):
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
 
+
 config = InferenceConfig()
 config.display()
 
-# Create model object.
+# Create model object
 model = modellib.MaskRCNN(model_dir=MODEL_DIR, config=config)
 if config.GPU_COUNT:
     model = model.cuda()
@@ -72,14 +70,34 @@ class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
 #file_names = next(os.walk(IMAGE_DIR))[2]
 #image = skimage.io.imread(os.path.join(IMAGE_DIR, random.choice(file_names)))
 
-i = 0
-for file_name in os.listdir(IMAGE_DIR):
-    image = skimage.io.imread(os.path.join(IMAGE_DIR, file_name))
-    if image is not None:
-        i += 1
-        results = model.detect([image])  # Run detection
-        # Visualize results
-        r = results[0]
-        visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], class_names, r['scores'])
-        plt.show()
-        plt.savefig(os.path.join('./results_mrcnn', 'result_%d.png' % i))
+try:
+    os.makedirs('./results_mrcnn')
+except OSError:
+    pass
+
+
+def main():
+    fashion_dir = os.path.join(ROOT_DIR, "results_fashion")
+    file_names = next(os.walk(fashion_dir))[2]
+    i = 0
+    for file_name in os.listdir(IMAGE_DIR):
+        if file_name == '.DS_Store':
+            continue
+        image = skimage.io.imread(os.path.join(IMAGE_DIR, file_name))
+        if image is not None:
+            i += 1
+            fashion_name = os.path.join(fashion_dir, random.choice(file_names))
+            results = model.detect([image])  # Run detection
+
+            # Visualize results
+            r = results[0]
+            visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], class_names, fashion_name, r['scores'])
+            plt.show()
+            plt.savefig(os.path.join('./results_mrcnn', 'result_%d.png' % i))
+
+
+if __name__ == '__main__':
+    tmps1 = time.time()
+    main()
+    tmps2 = time.time() - tmps1
+    print("Time of execution = %f seconds" % tmps2)
